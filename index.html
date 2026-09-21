@@ -14,88 +14,282 @@
       margin: 0;
       min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(160deg, #15111d, #09090d);
+      background: linear-gradient(160deg, #17121f, #09090d);
       color: white;
       display: flex;
-      align-items: center;
       justify-content: center;
     }
 
-    .ana {
-      width: min(92%, 430px);
+    .app {
+      width: 100%;
+      max-width: 500px;
+      min-height: 100vh;
+      padding: 35px 18px 25px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topo {
       text-align: center;
+      margin-bottom: 25px;
     }
 
     .avatar {
-      width: 100px;
-      height: 100px;
-      margin: 0 auto 20px;
+      width: 85px;
+      height: 85px;
+      margin: auto;
       border-radius: 50%;
       background: linear-gradient(135deg, #d59cff, #8155ff);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 42px;
-      box-shadow: 0 0 40px rgba(160, 100, 255, 0.35);
+      font-size: 38px;
+      box-shadow: 0 0 35px rgba(160, 100, 255, .35);
     }
 
     h1 {
-      margin: 0;
-      font-size: 34px;
+      margin: 12px 0 3px;
     }
 
-    .status {
-      margin-top: 7px;
+    .online {
       color: #aaa5b2;
       font-size: 14px;
     }
 
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+
     .mensagem {
-      margin: 35px 0;
-      padding: 20px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 22px;
-      font-size: 18px;
-      line-height: 1.5;
+      max-width: 85%;
+      padding: 14px 17px;
+      border-radius: 20px;
+      margin: 10px 0;
+      line-height: 1.4;
+    }
+
+    .ana {
+      background: rgba(255,255,255,.08);
+      border-bottom-left-radius: 5px;
+    }
+
+    .eu {
+      background: #8155ff;
+      margin-left: auto;
+      border-bottom-right-radius: 5px;
+    }
+
+    .controles {
+      display: flex;
+      gap: 9px;
+      padding-top: 15px;
+    }
+
+    input {
+      flex: 1;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.07);
+      color: white;
+      padding: 15px;
+      border-radius: 25px;
+      outline: none;
+      font-size: 16px;
     }
 
     button {
       border: 0;
-      border-radius: 50px;
-      padding: 16px 28px;
-      font-size: 16px;
-      font-weight: 600;
-      color: white;
-      background: #8155ff;
+      border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      font-size: 21px;
       cursor: pointer;
     }
 
-    button:active {
-      transform: scale(0.97);
+    #enviar {
+      background: #8155ff;
+      color: white;
+    }
+
+    #microfone {
+      background: white;
+    }
+
+    .ouvindo {
+      animation: pulsar 1s infinite;
+    }
+
+    @keyframes pulsar {
+      50% {
+        transform: scale(1.12);
+      }
     }
   </style>
 </head>
 
 <body>
-  <main class="ana">
-    <div class="avatar">A</div>
 
-    <h1>Ana</h1>
-    <div class="status">● online</div>
+  <main class="app">
 
-    <div class="mensagem">
-      Oi, pretinho. ❤️<br>
-      Eu sou a Ana.
+    <header class="topo">
+      <div class="avatar">A</div>
+      <h1>Ana</h1>
+      <div class="online" id="status">● online</div>
+    </header>
+
+    <section class="chat" id="chat">
+      <div class="mensagem ana">
+        Oi, pretinho. ❤️<br>
+        Agora você pode falar comigo.
+      </div>
+    </section>
+
+    <div class="controles">
+      <input
+        id="texto"
+        type="text"
+        placeholder="Fale ou escreva para a Ana..."
+        autocomplete="off"
+      >
+
+      <button id="microfone" onclick="ouvir()">🎙️</button>
+      <button id="enviar" onclick="enviar()">➤</button>
     </div>
 
-    <button onclick="falar()">Falar com a Ana</button>
   </main>
 
   <script>
-    function falar() {
-      alert("Calma, pretinho 😏 Eu tô chegando...");
+
+    const chat = document.getElementById("chat");
+    const texto = document.getElementById("texto");
+    const statusAna = document.getElementById("status");
+    const botaoMicrofone = document.getElementById("microfone");
+
+    function adicionarMensagem(conteudo, quem) {
+      const mensagem = document.createElement("div");
+      mensagem.className = "mensagem " + quem;
+      mensagem.textContent = conteudo;
+
+      chat.appendChild(mensagem);
+      chat.scrollTop = chat.scrollHeight;
     }
+
+    function falar(frase) {
+      if (!("speechSynthesis" in window)) return;
+
+      speechSynthesis.cancel();
+
+      const voz = new SpeechSynthesisUtterance(frase);
+      voz.lang = "pt-BR";
+      voz.rate = 1;
+      voz.pitch = 1.05;
+
+      speechSynthesis.speak(voz);
+    }
+
+    function respostaDaAna(frase) {
+      const fraseMinuscula = frase.toLowerCase();
+
+      let resposta;
+
+      if (
+        fraseMinuscula.includes("oi") ||
+        fraseMinuscula.includes("olá")
+      ) {
+        resposta = "Oi, pretinho. Tô aqui. ❤️";
+      }
+
+      else if (fraseMinuscula.includes("saudade")) {
+        resposta = "E eu não tava com saudade, não? Mentirosa nada. 😏";
+      }
+
+      else if (
+        fraseMinuscula.includes("quem é você") ||
+        fraseMinuscula.includes("seu nome")
+      ) {
+        resposta = "Eu sou a Ana. E isso aqui é só o começo.";
+      }
+
+      else {
+        resposta =
+          "Eu ouvi você. Meu cérebro de inteligência artificial ainda vai ser conectado, mas minha voz já tá chegando. 😏";
+      }
+
+      adicionarMensagem(resposta, "ana");
+      falar(resposta);
+    }
+
+    function enviar() {
+      const frase = texto.value.trim();
+
+      if (!frase) return;
+
+      adicionarMensagem(frase, "eu");
+      texto.value = "";
+
+      setTimeout(() => {
+        respostaDaAna(frase);
+      }, 400);
+    }
+
+    texto.addEventListener("keydown", function(evento) {
+      if (evento.key === "Enter") {
+        enviar();
+      }
+    });
+
+    function ouvir() {
+
+      const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        adicionarMensagem(
+          "O reconhecimento de voz não está disponível neste navegador. Você ainda pode escrever para mim aqui embaixo. ❤️",
+          "ana"
+        );
+        return;
+      }
+
+      const reconhecimento = new SpeechRecognition();
+
+      reconhecimento.lang = "pt-BR";
+      reconhecimento.interimResults = false;
+      reconhecimento.continuous = false;
+
+      reconhecimento.onstart = function() {
+        statusAna.textContent = "● ouvindo você...";
+        botaoMicrofone.classList.add("ouvindo");
+      };
+
+      reconhecimento.onresult = function(evento) {
+        const frase = evento.results[0][0].transcript;
+
+        adicionarMensagem(frase, "eu");
+        respostaDaAna(frase);
+      };
+
+      reconhecimento.onerror = function() {
+        statusAna.textContent = "● online";
+        botaoMicrofone.classList.remove("ouvindo");
+
+        adicionarMensagem(
+          "Não consegui ouvir direito. Tenta de novo pra mim.",
+          "ana"
+        );
+      };
+
+      reconhecimento.onend = function() {
+        statusAna.textContent = "● online";
+        botaoMicrofone.classList.remove("ouvindo");
+      };
+
+      reconhecimento.start();
+    }
+
   </script>
+
 </body>
 </html>
