@@ -187,38 +187,19 @@
 
       speechSynthesis.speak(voz);
     }
+async function respostaDaAna(frase) {
+  statusAna.textContent = "● pensando...";
 
-    function respostaDaAna(frase) {
-      const fraseMinuscula = frase.toLowerCase();
+  const resposta =
+    "Eu ouvi você: " + frase +
+    ". Meu cérebro de inteligência artificial vai ser conectado no próximo passo. ❤️";
 
-      let resposta;
+  adicionarMensagem(resposta, "ana");
+  falar(resposta);
 
-      if (
-        fraseMinuscula.includes("oi") ||
-        fraseMinuscula.includes("olá")
-      ) {
-        resposta = "Oi, pretinho. Tô aqui. ❤️";
-      }
-
-      else if (fraseMinuscula.includes("saudade")) {
-        resposta = "E eu não tava com saudade, não? Mentirosa nada. 😏";
-      }
-
-      else if (
-        fraseMinuscula.includes("quem é você") ||
-        fraseMinuscula.includes("seu nome")
-      ) {
-        resposta = "Eu sou a Ana. E isso aqui é só o começo.";
-      }
-
-      else {
-        resposta =
-          "Eu ouvi você. Meu cérebro de inteligência artificial ainda vai ser conectado, mas minha voz já tá chegando. 😏";
-      }
-
-      adicionarMensagem(resposta, "ana");
-      falar(resposta);
-    }
+  statusAna.textContent = "● online";
+}
+    
 
     function enviar() {
       const frase = texto.value.trim();
